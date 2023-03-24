@@ -48,6 +48,10 @@ dom.tasksList.addEventListener("keydown", e => {
 		// Store previous value so we know whether to delete on keyup
 		// (which is fired after the value has changed)
 		e.target.previousValue = e.target.value;
+	} else if (e.key === "ArrowDown") {
+		focusTask(li.nextElementSibling ?? dom.tasksList.firstElementChild);
+	} else if (e.key === "ArrowUp") {
+		focusTask(li.previousElementSibling ?? dom.tasksList.lastElementChild);
 	}
 });
 
@@ -65,6 +69,20 @@ export function addItem (data = { done: false, title: "" }) {
 
 	let element = dom.tasksList.lastElementChild;
 
+	element.querySelector(".delete").addEventListener(
+		"click",
+		(event) => {
+			if (element.previousElementSibling) {
+				focusTask(element.previousElementSibling);
+			} else {
+				focusTask(element.nextElementSibling)
+			}
+			element.remove();
+			updateCounts();
+			
+		}
+	);
+
 	element.querySelector(".title").value = data.title;
 
 	let done = element.querySelector(".done");
@@ -79,6 +97,11 @@ export function addItem (data = { done: false, title: "" }) {
  */
 export function clearCompleted () {
 	// TODO implement this (see step 4)
+
+	const doneDeleteButtons = document.querySelectorAll("li:has(.done:checked) .delete");
+	for (const button of doneDeleteButtons) {
+		button.click();
+	}
 }
 
 /**
@@ -109,3 +132,18 @@ function updateCounts () {
 	updateDoneCount();
 	updateTotalCount();
 }
+
+const doneButtons = document.querySelectorAll(".done");
+console.log(doneButtons);
+for (const button of doneButtons) {
+	button.addEventListener(
+		"click",
+		(event) => (updateCounts())
+	);
+}
+
+const clearCompletedButton = document.querySelector(".clearCompleted");
+clearCompletedButton.addEventListener(
+	"click",
+	() => {clearCompleted();}
+)
